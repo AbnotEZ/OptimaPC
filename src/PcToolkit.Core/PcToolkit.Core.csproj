@@ -6,7 +6,9 @@
     <RootNamespace>PcToolkit.Core</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Localization\Strings.*.json" LogicalName="PcToolkit.Strings.%(Filename).json" />
+    <!-- WithCulture=false: sin esto, MSBuild interpreta ".es"/".en" como cultura y mueve los textos
+         a ensamblados satélite, y Loc no los encuentra en la DLL principal. -->
+    <EmbeddedResource Include="Localization\Strings.*.json" LogicalName="PcToolkit.Strings.%(Filename).json" WithCulture="false" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="PcToolkit.Core.Tests" />
