@@ -24,11 +24,11 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       # Recomendación al publicar: fijar las acciones por SHA de commit en lugar de etiqueta.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -45,9 +45,23 @@ jobs:
       - name: Integration tests (read-only)
         run: dotnet test tests/PcToolkit.Windows.IntegrationTests -c Release --no-build --logger "trx;LogFileName=integration.trx" --logger "console;verbosity=detailed" --results-directory TestResults
 
+      # Publica cada prueba fallida como anotación visible en la ejecución (sin descargar registros).
+      - name: Report failed tests
+        if: failure()
+        shell: pwsh
+        run: |
+          Get-ChildItem TestResults -Filter *.trx -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+            [xml]$trx = Get-Content $_.FullName -Raw
+            $trx.TestRun.Results.UnitTestResult | Where-Object { $_.outcome -eq 'Failed' } | ForEach-Object {
+              $msg = ("$($_.Output.ErrorInfo.Message)" -replace "`r?`n", ' | ')
+              if ($msg.Length -gt 900) { $msg = $msg.Substring(0, 900) }
+              Write-Output "::error title=$($_.testName)::$msg"
+            }
+          }
+
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results
           path: TestResults

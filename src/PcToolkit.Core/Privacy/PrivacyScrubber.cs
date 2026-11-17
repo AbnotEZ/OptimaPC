@@ -47,11 +47,20 @@ public sealed partial class PrivacyScrubber
             }
         }
 
-        AddWord(identity.UserName, UserToken);
-        AddWord(identity.MachineName, ComputerToken);
+        // Los identificadores más largos se sustituyen primero: si el equipo se llama "ALICE-PC" y el
+        // usuario "alice", el nombre del equipo debe quedar como <COMPUTER> y no como "<USER>-PC".
+        var words = new List<(string? Value, string Token)>
+        {
+            (identity.UserName, UserToken),
+            (identity.MachineName, ComputerToken),
+        };
         if (!string.Equals(identity.DomainName, identity.MachineName, StringComparison.OrdinalIgnoreCase))
         {
-            AddWord(identity.DomainName, DomainToken);
+            words.Add((identity.DomainName, DomainToken));
+        }
+        foreach (var (value, token) in words.OrderByDescending(w => w.Value?.Length ?? 0))
+        {
+            AddWord(value, token);
         }
     }
 
