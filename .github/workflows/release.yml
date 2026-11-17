@@ -30,6 +30,7 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
     outputs:
       version: ${{ steps.version.outputs.version }}
+      signed: ${{ steps.package.outputs.signed }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -69,7 +70,10 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      # Sin SignPath configurado (variable vacía) se genera una versión preliminar SIN FIRMAR,
+      # claramente etiquetada. SignPath exige que el proyecto ya esté publicado antes de solicitar la firma.
       - name: Sign with SignPath
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
         uses: signpath/github-action-submit-signing-request@v3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -81,6 +85,7 @@ jobs:
           output-artifact-directory: artifacts/signed/win-x64
 
       - name: Verify signature
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
         shell: pwsh
         run: |
           $sig = Get-AuthenticodeSignature artifacts/signed/win-x64/OptimaPC.exe
@@ -88,12 +93,17 @@ jobs:
           if ($sig.Status -ne 'Valid') { throw "La firma no es válida: $($sig.Status)" }
 
       - name: Package and hash
+        id: package
         shell: pwsh
         run: |
           $v = "${{ steps.version.outputs.version }}"
+          $signed = "${{ vars.SIGNPATH_ORGANIZATION_ID }}" -ne ''
+          $source = if ($signed) { 'artifacts/signed/win-x64' } else { 'artifacts/publish/win-x64' }
+          $suffix = if ($signed) { '' } else { '-unsigned' }
           New-Item -ItemType Directory -Force artifacts/release | Out-Null
-          $zip = "artifacts/release/OptimaPC-$v-win-x64.zip"
-          Compress-Archive -Path artifacts/signed/win-x64/* -DestinationPath $zip
+          $zip = "artifacts/release/OptimaPC-$v-win-x64$suffix.zip"
+          Compress-Archive -Path "$source/*" -DestinationPath $zip
+          "signed=$($signed.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           Get-ChildItem artifacts/release/*.zip | ForEach-Object {
             "{0}  {1}" -f (Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
           } | Set-Content -Encoding ascii artifacts/release/SHA256SUMS.txt
@@ -123,15 +133,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
           VERSION: ${{ needs.build-sign.outputs.version }}
+          SIGNED: ${{ needs.build-sign.outputs.signed }}
         run: |
+          if [ "$SIGNED" = "true" ]; then
+            SIGN_NOTE="Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org). [Code signing policy](https://github.com/${GITHUB_REPOSITORY}/blob/main/docs/code-signing-policy.md)."
+          else
+            SIGN_NOTE="**Versión SIN FIRMAR / UNSIGNED build.** Windows (Smart App Control o SmartScreen) puede bloquearla o mostrar avisos. **No desactives ninguna protección para ejecutarla**: espera a una versión firmada. [Code signing policy](https://github.com/${GITHUB_REPOSITORY}/blob/main/docs/code-signing-policy.md)."
+          fi
           cat > notes.md <<EOF
-          Versión preliminar ${VERSION}. Consulta CHANGELOG.md y docs/testing.md (estado de verificación).
+          OptimaPC ${VERSION} (preliminar, solo lectura): detecta el hardware y mide el uso de recursos con datos reales de Windows. No modifica el sistema. Consulta CHANGELOG.md y docs/testing.md (estado de verificación).
+
+          ${SIGN_NOTE}
 
           **Verificar la descarga:** compara el SHA-256 del .zip con SHA256SUMS.txt
-          (PowerShell: \`Get-FileHash .\\OptimaPC-${VERSION}-win-x64.zip\`).
-
-          Windows puede mostrar avisos de SmartScreen en versiones nuevas. No desactives ninguna protección para ejecutarla.
-
-          Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+          (PowerShell: \`Get-FileHash .\\<archivo>.zip\`).
           EOF
           gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --draft --prerelease --title "OptimaPC ${VERSION}" --notes-file notes.md

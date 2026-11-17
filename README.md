@@ -70,9 +70,9 @@ Procesamiento local, sin telemetría. Datos en `%LocalAppData%\OptimaPC` (histor
 
 ## Descargas y firma
 
-Las versiones se publican en *Releases* como `.zip` portable, compilado en GitHub Actions, firmado y con su hash SHA-256 ([cómo verificarlo](docs/release.md#verificar-una-descarga)). No desactives ninguna protección de Windows para ejecutarlo.
+Las versiones se publican en *Releases* como `.zip` portable, compilado en GitHub Actions y con su hash SHA-256 ([cómo verificarlo](docs/release.md#verificar-una-descarga)). No desactives ninguna protección de Windows para ejecutarlo.
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org). Ver la [política de firma](docs/code-signing-policy.md).
+**Firma:** se ha solicitado firma de código gratuita a [SignPath Foundation](https://signpath.org). Hasta que se apruebe, las versiones preliminares se publican **sin firmar** y lo indican en su nombre (`-unsigned`). Windows puede bloquearlas (Smart App Control) o mostrar avisos (SmartScreen). [Code signing policy](docs/code-signing-policy.md).
 
 ## Licencia
 

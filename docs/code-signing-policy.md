@@ -2,6 +2,8 @@
 
 Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 
+> Estado: solicitud pendiente. Mientras no se apruebe, las versiones se publican sin firmar y llevan `-unsigned` en el nombre del archivo.
+
 ## Qué se firma
 
 - Solo los binarios compilados a partir de este repositorio, en GitHub Actions (`.github/workflows/release.yml`), a partir de una etiqueta de versión.

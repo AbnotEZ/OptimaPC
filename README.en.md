@@ -60,9 +60,9 @@ Local processing, no telemetry. Data lives in `%LocalAppData%\OptimaPC` (history
 
 ## Downloads and signing
 
-Releases are published as a portable `.zip`, built on GitHub Actions, signed and with a SHA-256 hash ([how to verify](docs/release.md)). Do not turn off any Windows protection to run it.
+Releases are published as a portable `.zip`, built on GitHub Actions, with a SHA-256 hash ([how to verify](docs/release.md)). Do not turn off any Windows protection to run it.
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org). See the [code signing policy](docs/code-signing-policy.md).
+**Signing:** free code signing has been requested from [SignPath Foundation](https://signpath.org). Until it is approved, preview builds are published **unsigned** and say so in their file name (`-unsigned`). Windows may block them (Smart App Control) or show warnings (SmartScreen). [Code signing policy](docs/code-signing-policy.md).
 
 ## License
 
