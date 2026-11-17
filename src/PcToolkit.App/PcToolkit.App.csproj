@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>PcToolkit.App</RootNamespace>
+    <AssemblyName>OptimaPC</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- ThemeMode (tema Fluent oscuro) está marcado como experimental en WPF. -->
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PcToolkit.Core\PcToolkit.Core.csproj" />
+    <ProjectReference Include="..\PcToolkit.Windows\PcToolkit.Windows.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+</Project>

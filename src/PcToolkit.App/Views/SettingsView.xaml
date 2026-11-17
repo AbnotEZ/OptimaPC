@@ -1,0 +1,56 @@
+<UserControl x:Class="PcToolkit.App.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="clr-namespace:PcToolkit.App">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="8" MaxWidth="900" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource PageTitle}" Text="{app:Tr Nav.Settings}" />
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{app:Tr Settings.Preferences}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <Label Content="{app:Tr Settings.Language}" Target="{Binding ElementName=LangBox}" Padding="0,0,0,4" />
+                    <ComboBox x:Name="LangBox" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" DisplayMemberPath="Label"
+                              MinWidth="200" HorizontalAlignment="Left" AutomationProperties.Name="{app:Tr Settings.Language}" />
+                    <Label Content="{app:Tr Settings.QuickDuration}" Target="{Binding ElementName=QuickBox}" Padding="0,12,0,4" />
+                    <ComboBox x:Name="QuickBox" ItemsSource="{Binding QuickDurations}" SelectedItem="{Binding SelectedQuickDuration}" DisplayMemberPath="Label"
+                              MinWidth="200" HorizontalAlignment="Left" AutomationProperties.Name="{app:Tr Settings.QuickDuration}" />
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button Content="{app:Tr Common.Save}" Command="{Binding SaveCommand}" Padding="16,6" Style="{DynamicResource AccentButtonStyle}" />
+                        <TextBlock Text="{Binding Status}" Margin="12,0" VerticalAlignment="Center" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{app:Tr Settings.Data}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Style="{StaticResource Body}" Text="{app:Tr Settings.DataText}" />
+                    <TextBox Text="{Binding DataFolder, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" Margin="0,6,0,6"
+                             AutomationProperties.Name="{app:Tr Settings.Data}" />
+                    <WrapPanel>
+                        <Button Content="{app:Tr Settings.OpenFolder}" Command="{Binding OpenDataFolderCommand}" Padding="14,6" Margin="0,0,8,6" />
+                        <Button Content="{app:Tr Settings.DeleteData}" Command="{Binding DeleteLocalDataCommand}" Padding="14,6" Margin="0,0,8,6" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{app:Tr Settings.Help}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Style="{StaticResource Body}" Text="{app:Tr Help.Statuses}" />
+                    <TextBlock Style="{StaticResource Body}" Text="{app:Tr Help.Units}" Margin="0,8,0,0" />
+                    <TextBlock Style="{StaticResource Body}" Text="{app:Tr Help.Permissions}" Margin="0,8,0,0" />
+                    <TextBlock Style="{StaticResource Body}" Text="{app:Tr Help.Privacy}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{app:Tr Settings.AboutTitle}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Style="{StaticResource Body}" Text="{Binding About}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,116 @@
+<UserControl x:Class="PcToolkit.App.Views.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="clr-namespace:PcToolkit.App"
+             xmlns:c="clr-namespace:PcToolkit.App.Controls">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="8" MaxWidth="1040" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource PageTitle}" Text="{app:Tr Nav.Diagnostics}" />
+            <TextBlock Style="{StaticResource Body}" Text="{app:Tr Diag.Intro}" />
+
+            <Border Style="{StaticResource Card}" Margin="0,12,0,12">
+                <StackPanel>
+                    <WrapPanel>
+                        <StackPanel Margin="0,0,16,8">
+                            <Label Content="{app:Tr Diag.Duration}" Target="{Binding ElementName=DurationBox}" Padding="0,0,0,4" />
+                            <ComboBox x:Name="DurationBox" ItemsSource="{Binding Durations}" SelectedItem="{Binding SelectedDuration}"
+                                      DisplayMemberPath="Label" MinWidth="140" AutomationProperties.Name="{app:Tr Diag.Duration}" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,16,8">
+                            <Label Content="{app:Tr Diag.Interval}" Target="{Binding ElementName=IntervalBox}" Padding="0,0,0,4" />
+                            <ComboBox x:Name="IntervalBox" ItemsSource="{Binding Intervals}" SelectedItem="{Binding SelectedInterval}"
+                                      DisplayMemberPath="Label" MinWidth="140" AutomationProperties.Name="{app:Tr Diag.Interval}" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,16,8">
+                            <Label Content="{app:Tr Diag.Context}" Target="{Binding ElementName=ContextBox}" Padding="0,0,0,4" />
+                            <ComboBox x:Name="ContextBox" ItemsSource="{Binding Contexts}" SelectedItem="{Binding SelectedContext}"
+                                      DisplayMemberPath="Label" MinWidth="220" AutomationProperties.Name="{app:Tr Diag.Context}" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <TextBlock Style="{StaticResource Muted}" Text="{app:Tr Diag.ContextHelp}" />
+                    <WrapPanel Margin="0,10,0,0">
+                        <Button Content="{app:Tr Diag.Start}" Command="{Binding StartCommand}" Padding="20,8" Margin="0,0,8,6" Style="{DynamicResource AccentButtonStyle}" />
+                        <Button Content="{app:Tr Common.Cancel}" Command="{Binding CancelCommand}" Padding="16,8" Margin="0,0,8,6" />
+                        <Button Content="{app:Tr Common.Export}" Command="{Binding ExportCommand}" Padding="16,8" Margin="0,0,8,6" />
+                    </WrapPanel>
+                    <ProgressBar Height="6" Margin="0,4,0,0" Minimum="0" Maximum="1" Value="{Binding Progress}"
+                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" AutomationProperties.Name="{app:Tr Common.Progress}" />
+                    <TextBlock Style="{StaticResource Body}" Text="{Binding Status}" AutomationProperties.LiveSetting="Polite" />
+                    <ItemsControl ItemsSource="{Binding Live}" Focusable="False" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="12" TextWrapping="Wrap">
+                                    <Run Text="{Binding Name, Mode=OneWay}" />: <Run Text="{Binding Value, Mode=OneWay}" FontWeight="SemiBold" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{app:Tr Diag.Results}" />
+            <TextBlock Style="{StaticResource Body}" Text="{Binding Description}" />
+            <Border Style="{StaticResource Notice}" Margin="0,8,0,12">
+                <TextBlock Style="{StaticResource Body}" Text="{app:Tr Diag.Interpretation}" />
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding Metrics}" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap">
+                                    <Run Text="{Binding Name, Mode=OneWay}" /> <Run Text="{Binding Unit, Mode=OneWay, StringFormat='({0})'}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                </TextBlock>
+                                <WrapPanel Margin="0,6,0,6">
+                                    <TextBlock Margin="0,0,18,0"><Run Text="{app:Tr Stat.Min}" />: <Run Text="{Binding Min, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                                    <TextBlock Margin="0,0,18,0"><Run Text="{app:Tr Stat.Mean}" />: <Run Text="{Binding Mean, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                                    <TextBlock Margin="0,0,18,0"><Run Text="{app:Tr Stat.P95}" />: <Run Text="{Binding P95, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                                    <TextBlock Margin="0,0,18,0"><Run Text="{app:Tr Stat.Max}" />: <Run Text="{Binding Max, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                                    <TextBlock Margin="0,0,18,0"><Run Text="{app:Tr Stat.Samples}" />: <Run Text="{Binding Samples, Mode=OneWay}" /></TextBlock>
+                                </WrapPanel>
+                                <c:SeriesChart Series="{Binding Series}" Height="120" Focusable="True" />
+                                <Expander Header="{app:Tr Common.TechnicalDetails}" Margin="0,6,0,0">
+                                    <StackPanel Margin="0,4,0,0">
+                                        <TextBlock FontSize="12" TextWrapping="Wrap"><Run Text="{app:Tr Diag.Source}" />: <Run Text="{Binding Source, Mode=OneWay}" /></TextBlock>
+                                        <TextBlock FontSize="12" TextWrapping="Wrap"><Run Text="{app:Tr Diag.Kind}" />: <Run Text="{Binding KindText, Mode=OneWay}" /></TextBlock>
+                                        <TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding Formula, StringFormat='= {0}'}" />
+                                        <TextBlock FontSize="12" TextWrapping="Wrap" Opacity="0.78" Text="{app:Tr Diag.ChartLegend}" />
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{app:Tr Diag.Unsupported}" Visibility="{Binding HasResult, Converter={StaticResource BoolToVis}}" />
+            <ItemsControl ItemsSource="{Binding Unsupported}" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding StringFormat='•  {0}'}" Style="{StaticResource Muted}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{app:Tr Diag.Processes}" Visibility="{Binding HasResult, Converter={StaticResource BoolToVis}}" />
+            <TextBlock Style="{StaticResource Muted}" Text="{app:Tr Diag.ProcessesNote}" Visibility="{Binding HasResult, Converter={StaticResource BoolToVis}}" />
+            <DataGrid ItemsSource="{Binding Processes}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+                      Margin="0,8,0,0" MaxHeight="420" CanUserAddRows="False" SelectionMode="Single"
+                      AutomationProperties.Name="{app:Tr Diag.Processes}"
+                      Visibility="{Binding HasResult, Converter={StaticResource BoolToVis}}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{app:Tr Proc.Name}" Binding="{Binding Name}" Width="2*" />
+                    <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="Auto" />
+                    <DataGridTextColumn Header="{app:Tr Proc.Cpu}" Binding="{Binding Cpu}" Width="Auto" />
+                    <DataGridTextColumn Header="{app:Tr Proc.WorkingSet}" Binding="{Binding WorkingSet}" Width="Auto" />
+                    <DataGridTextColumn Header="{app:Tr Proc.Private}" Binding="{Binding PrivateBytes}" Width="Auto" />
+                    <DataGridTextColumn Header="{app:Tr Proc.Note}" Binding="{Binding Note}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

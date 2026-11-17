@@ -1,0 +1,78 @@
+<UserControl x:Class="PcToolkit.App.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="clr-namespace:PcToolkit.App">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="8" MaxWidth="980" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource PageTitle}" Text="{app:Tr Nav.Home}" />
+            <TextBlock Style="{StaticResource Body}" Text="{Binding Welcome}" />
+
+            <Border Style="{StaticResource Card}" Margin="0,12,0,12">
+                <StackPanel>
+                    <WrapPanel>
+                        <Button Content="{app:Tr Home.Analyze}" Command="{Binding AnalyzeCommand}" Padding="20,8" Margin="0,0,8,6"
+                                Style="{DynamicResource AccentButtonStyle}" />
+                        <Button Content="{app:Tr Common.Cancel}" Command="{Binding CancelCommand}" Padding="16,8" Margin="0,0,8,6" />
+                        <Button Content="{app:Tr Common.Export}" Command="{Binding ExportCommand}" Padding="16,8" Margin="0,0,8,6" />
+                    </WrapPanel>
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding AnalyzeHint}" />
+                    <ProgressBar Height="6" Margin="0,8,0,0" Minimum="0" Maximum="1" Value="{Binding Progress}"
+                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"
+                                 AutomationProperties.Name="{app:Tr Common.Progress}" />
+                    <TextBlock Style="{StaticResource Body}" Text="{Binding Status}" AutomationProperties.LiveSetting="Polite" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding LastAnalysis}" Margin="0,6,0,0" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{app:Tr Home.Summary}" />
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{app:Tr Home.SummaryEmpty}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasData}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ItemsControl ItemsSource="{Binding Summary}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Opacity="0.78" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{app:Tr Home.SeeMyPc}" Command="{Binding GoToMyPcCommand}" HorizontalAlignment="Left" Margin="0,10,0,0" Padding="12,6" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{app:Tr Home.Facts}" />
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Muted}" Text="{app:Tr Home.FactsNote}" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding Facts}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding StringFormat='•  {0}'}" TextWrapping="Wrap" Margin="0,3" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{app:Tr Home.SeeDiagnostics}" Command="{Binding GoToDiagnosticsCommand}" HorizontalAlignment="Left" Margin="0,10,0,0" Padding="12,6" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

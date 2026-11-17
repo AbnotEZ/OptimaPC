@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Núcleo sin dependencias de Windows: modelos, interpretación, sesiones, exportación,
+       persistencia de historial y presentación. Se prueba sin tocar el sistema real. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PcToolkit.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\Strings.*.json" LogicalName="PcToolkit.Strings.%(Filename).json" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PcToolkit.Core.Tests" />
+  </ItemGroup>
+</Project>

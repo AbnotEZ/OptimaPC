@@ -1,0 +1,54 @@
+name: CI
+
+# Compila y prueba en Windows. Usa `pull_request` (no `pull_request_target`): el código de
+# contribuciones externas se ejecuta sin acceso a secretos y con un token de solo lectura.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      # Recomendación al publicar: fijar las acciones por SHA de commit en lugar de etiqueta.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore OptimaPC.slnx
+
+      - name: Build
+        run: dotnet build OptimaPC.slnx -c Release --no-restore
+
+      - name: Unit tests
+        run: dotnet test tests/PcToolkit.Core.Tests -c Release --no-build --logger "trx;LogFileName=unit.trx" --results-directory TestResults
+
+      # Solo lectura. El runner es una máquina desechable sin GPU física: valida el manejo de datos no disponibles.
+      - name: Integration tests (read-only)
+        run: dotnet test tests/PcToolkit.Windows.IntegrationTests -c Release --no-build --logger "trx;LogFileName=integration.trx" --logger "console;verbosity=detailed" --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+          retention-days: 14

@@ -1,0 +1,44 @@
+name: Informe de error / Bug report
+description: Algo no funciona o muestra un dato incorrecto / Something is broken or shows wrong data
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de adjuntar un informe exportado, revisa la vista previa: no incluyas datos que no quieras publicar.
+        Before attaching an exported report, check the preview: do not include data you do not want to publish.
+  - type: input
+    id: version
+    attributes:
+      label: Versión de la aplicación / App version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows (edición, versión, compilación) / Windows (edition, version, build)
+      placeholder: "Windows 11 Pro 25H2 26200.xxxx"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué pasó y qué esperabas / What happened and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducirlo / Steps to reproduce
+  - type: textarea
+    id: data
+    attributes:
+      label: Dato afectado y su «Origen» (Detalles técnicos) / Affected value and its "Source"
+      description: Si un dato es incorrecto, copia la línea de «Detalles técnicos». / If a value is wrong, copy its "Technical details" line.
+  - type: textarea
+    id: log
+    attributes:
+      label: Extracto del registro (opcional) / Log excerpt (optional)
+      description: "%LocalAppData%\\OptimaPC\\logs\\app.log"
+      render: text

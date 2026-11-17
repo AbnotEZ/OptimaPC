@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PcToolkit.Core/PcToolkit.Core.csproj" />
+    <Project Path="src/PcToolkit.Windows/PcToolkit.Windows.csproj" />
+    <Project Path="src/PcToolkit.App/PcToolkit.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PcToolkit.Core.Tests/PcToolkit.Core.Tests.csproj" />
+    <Project Path="tests/PcToolkit.Windows.IntegrationTests/PcToolkit.Windows.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

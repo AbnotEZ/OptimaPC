@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Adaptadores de Windows (WMI, PDH, DXCore, Win32, registro). En la fase 1 son SOLO LECTURA. -->
+  <PropertyGroup>
+    <!-- Sin versión de plataforma para no arrastrar las proyecciones WinRT (~25 MB) que no se usan.
+         DXCore requiere Windows 10 2004+; si falta, se recurre a WMI en tiempo de ejecución. -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>PcToolkit.Windows</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PcToolkit.Core\PcToolkit.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PcToolkit.Windows.IntegrationTests" />
+  </ItemGroup>
+</Project>

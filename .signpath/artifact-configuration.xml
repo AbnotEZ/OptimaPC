@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copia de referencia de la configuración de artefacto que debe definirse en SignPath
+  (Project → Artifact configurations). SignPath usa la configuración guardada en su web, no este archivo.
+  Solo se firma nuestro ejecutable; las DLL nativas de WPF ya vienen firmadas por Microsoft.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="OptimaPC.exe">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

@@ -1,0 +1,30 @@
+name: Solicitud de función / Feature request
+description: Propón una mejora / Suggest an improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        No se aceptan: controladores de kernel, limpiadores de registro, «liberadores de RAM», cambios en antivirus, firewall, Windows Update, arranque o BIOS, ni ajustes sin una justificación verificable.
+        Not accepted: kernel drivers, registry cleaners, "RAM boosters", changes to antivirus, firewall, Windows Update, boot or BIOS, or tweaks without verifiable justification.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema que resolvería / Problem it would solve
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta / Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Fuente oficial o evidencia / Official source or evidence
+      description: Documentación de Microsoft o del fabricante, mediciones reproducibles… / Microsoft or vendor docs, reproducible measurements…
+  - type: textarea
+    id: revert
+    attributes:
+      label: Si cambia el sistema, ¿cómo se revierte? / If it changes the system, how is it reverted?

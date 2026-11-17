@@ -1,0 +1,137 @@
+name: Release
+
+# Se ejecuta al subir una etiqueta "v<versión>" (por ejemplo, v0.1.0).
+# Compila en un runner de GitHub (requisito de SignPath para proyectos de código abierto),
+# firma con SignPath Foundation y crea un BORRADOR de Release con hashes SHA-256.
+# Nada se publica hasta que una persona revisa el borrador y pulsa "Publish release".
+#
+# Configuración necesaria (ver docs/release.md):
+#   - Environment "release" con revisores obligatorios.
+#   - Secret del environment: SIGNPATH_API_TOKEN
+#   - Variables: SIGNPATH_ORGANIZATION_ID, SIGNPATH_PROJECT_SLUG, SIGNPATH_SIGNING_POLICY_SLUG
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-sign:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    environment: release
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Check tag matches project version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (dotnet msbuild src/PcToolkit.Core/PcToolkit.Core.csproj -getProperty:Version).Trim()
+          $tag = "${{ github.ref_name }}"
+          if ($tag -ne "v$version") { throw "La etiqueta '$tag' no coincide con <Version>$version</Version> de Directory.Build.props." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test tests/PcToolkit.Core.Tests -c Release
+
+      - name: Publish
+        run: dotnet publish src/PcToolkit.App/PcToolkit.App.csproj -p:PublishProfile=win-x64
+
+      - name: Add license and notices
+        shell: pwsh
+        run: |
+          Copy-Item LICENSE artifacts/publish/win-x64/LICENSE.txt
+          Copy-Item docs/dependencies.md artifacts/publish/win-x64/THIRD-PARTY-NOTICES.md
+
+      - name: Upload unsigned artifact
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-win-x64
+          path: artifacts/publish/win-x64/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Sign with SignPath
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: artifacts/signed/win-x64
+
+      - name: Verify signature
+        shell: pwsh
+        run: |
+          $sig = Get-AuthenticodeSignature artifacts/signed/win-x64/OptimaPC.exe
+          "Status: $($sig.Status) | Signer: $($sig.SignerCertificate.Subject)"
+          if ($sig.Status -ne 'Valid') { throw "La firma no es válida: $($sig.Status)" }
+
+      - name: Package and hash
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          New-Item -ItemType Directory -Force artifacts/release | Out-Null
+          $zip = "artifacts/release/OptimaPC-$v-win-x64.zip"
+          Compress-Archive -Path artifacts/signed/win-x64/* -DestinationPath $zip
+          Get-ChildItem artifacts/release/*.zip | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
+          } | Set-Content -Encoding ascii artifacts/release/SHA256SUMS.txt
+          Get-Content artifacts/release/SHA256SUMS.txt
+
+      - name: Upload release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-win-x64
+          path: artifacts/release/
+          if-no-files-found: error
+
+  draft-release:
+    needs: build-sign
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-win-x64
+          path: release
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build-sign.outputs.version }}
+        run: |
+          cat > notes.md <<EOF
+          Versión preliminar ${VERSION}. Consulta CHANGELOG.md y docs/testing.md (estado de verificación).
+
+          **Verificar la descarga:** compara el SHA-256 del .zip con SHA256SUMS.txt
+          (PowerShell: \`Get-FileHash .\\OptimaPC-${VERSION}-win-x64.zip\`).
+
+          Windows puede mostrar avisos de SmartScreen en versiones nuevas. No desactives ninguna protección para ejecutarla.
+
+          Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+          EOF
+          gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --draft --prerelease --title "OptimaPC ${VERSION}" --notes-file notes.md
