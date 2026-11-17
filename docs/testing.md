@@ -24,21 +24,21 @@ Con Smart App Control **activado**, Windows bloquea la carga de las DLL de prueb
 
 | Área | Implementado | Prueba automática escrita | Prueba automática ejecutada | Probado a mano | Validado en hardware real |
 |---|---|---|---|---|---|
-| Modelo `Reading`/muestras y estadísticas | Sí | Sí | **No** (bloqueado por Smart App Control) | No | — |
-| Mapas de hardware (chasis, SMBIOS, almacenamiento, PCI) | Sí | Sí | No | No | No |
-| Agregación de contadores de GPU (varias GPU) | Sí | Sí | No | No | No |
-| `StartupApproved` | Sí | Sí | No | No | No |
-| Sesión de muestreo (cancelación, muestras ausentes y erróneas) | Sí | Sí | No | No | No |
-| CPU por proceso (reutilización de PID, acceso denegado) | Sí | Sí | No | No | No |
-| Aislamiento de fallos del inventario | Sí | Sí | No | No | No |
-| Anonimizador y exportación | Sí | Sí | No | No | — |
-| Historial (retención, archivos dañados o incompatibles, rutas no válidas) | Sí | Sí | No | No | — |
-| Textos es/en (mismas claves y marcadores, claves usadas) | Sí | Sí | No | No | — |
-| Inventario real de Windows (WMI, DXCore, Win32) | Sí | Sí (integración) | No | No | No |
-| Muestreo PDH real | Sí | Sí (integración) | No | No | No |
+| Modelo `Reading`/muestras y estadísticas | Sí | Sí | Sí (CI) | No | — |
+| Mapas de hardware (chasis, SMBIOS, almacenamiento, PCI) | Sí | Sí | Sí (CI) | No | No |
+| Agregación de contadores de GPU (varias GPU) | Sí | Sí | Sí (CI) | No | No |
+| `StartupApproved` | Sí | Sí | Sí (CI) | No | No |
+| Sesión de muestreo (cancelación, muestras ausentes y erróneas) | Sí | Sí | Sí (CI) | No | No |
+| CPU por proceso (reutilización de PID, acceso denegado) | Sí | Sí | Sí (CI) | No | No |
+| Aislamiento de fallos del inventario | Sí | Sí | Sí (CI) | No | No |
+| Anonimizador y exportación | Sí | Sí | Sí (CI) | No | — |
+| Historial (retención, archivos dañados o incompatibles, rutas no válidas) | Sí | Sí | Sí (CI) | No | — |
+| Textos es/en (mismas claves y marcadores, claves usadas) | Sí | Sí | Sí (CI) | No | — |
+| Inventario real de Windows (WMI, DXCore, Win32) | Sí | Sí (integración) | Sí (CI, Windows Server sin GPU) | No | No |
+| Muestreo PDH real | Sí | Sí (integración) | Sí (CI, Windows Server sin GPU) | No | No |
 | Interfaz WPF | Sí | No | — | No | No |
 
-«Compila» es la única verificación que se ha hecho hasta ahora: la solución completa compila sin errores ni advertencias (`TreatWarningsAsErrors`).
+Las pruebas automáticas se ejecutan en GitHub Actions (`windows-latest`, Windows Server) y pasan desde el commit `96fbfcd`. Los dos primeros intentos fallaron y sirvieron para detectar y corregir dos errores reales: el orden del anonimizador y los textos colocados en ensamblados satélite. La interfaz todavía no se ha ejecutado en ningún equipo.
 
 ## Matriz de hardware pendiente
 
